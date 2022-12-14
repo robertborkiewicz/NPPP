@@ -1,0 +1,103 @@
+﻿@page "/Customers/List"
+
+<PageTitle>Klienci poradni</PageTitle>
+
+@using NPPP.Shared
+@using NPPP.Data
+
+
+<h1>Klienci poradni</h1>
+
+@if (customers == null)
+{
+    <p><em>Ładowanie danych ...</em></p>
+}
+else
+{
+
+    <div class="nav-item px-10">
+        <NavLink class="nav-link" href="Customers/List">
+            <span class="oi oi-plus" aria-setsize="10" aria-hidden="true" title="Dodaj nowy"></span>
+        </NavLink>
+    </div>
+
+    <SearchComponent SearchString=""></SearchComponent>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>PESEL</th>
+                <th>Imię rodzica</th>
+                <th>Nazwisko rodzica</th>
+                <th>PESEL rodzica</th>
+                <th>Telefon rodzica</th>
+                <th>Email rodzica</th>
+                <th>Ulica</th>
+                <th>Miasto</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.FirstName</td>
+                    <td>@customer.LastName</td>
+                    <td>@customer.PESEL</td>
+                    <td>@customer.ParentFirstName</td>
+                    <td>@customer.ParentLastName</td>
+                    <td>@customer.ParentPESEL</td>
+                    <td>@customer.ParentPhone</td>
+                    <td>@customer.ParentEmail</td>
+                    <td>@customer.AddressStreet</td>
+                    <td>@customer.AddressCity</td>
+                    <td>
+                        <NavLink class="nav-link" href="/">
+                            <span class="oi oi-pencil" aria-hidden="true" title="Edytuj"></span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="/">
+                            <span class="oi oi-trash" aria-hidden="true" title="Usuń"></span>
+                        </NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <PaginationComponent CurrentPage=@PageNr PageCount="@objCS.PageCount"></PaginationComponent>
+
+}
+
+@code {
+
+    IEnumerable<Customer> ?customers;
+
+    CustomerService ?objCS;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNr { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "search")]
+    public string? SearchString { get; set; }
+
+    protected override async void OnParametersSet()
+    {
+        if (PageNr == 0) PageNr = 1;
+        if (objCS == null) objCS = new CustomerService();
+        customers = await Task.Run(() => objCS.GetCustomers(PageNr, SearchString));
+        StateHasChanged(); 
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        SearchString = "";
+        return base.OnInitializedAsync();
+    }
+
+    
+}
+

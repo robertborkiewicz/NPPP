@@ -1,0 +1,57 @@
+﻿@inject NavigationManager navManager
+
+@if (PageCount>0)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item @PrevDisabled"> 
+                <NavLink class="page-link" href=@(navManager.GetUriWithQueryParameter("page",CurrentPage-1)) aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </NavLink>
+            </li>
+            @for (int i = 1; i <= PageCount; i++)
+            {
+                var current = i;
+                if (i == CurrentPage)
+                {
+                    <li class="page-item active disabled">
+                        <NavLink class="page-link" href=@(navManager.GetUriWithQueryParameter("page",i))>@current</NavLink>
+                    </li>
+                }
+                else 
+                {
+                     <li class="page-item">
+                         <NavLink class="page-link" href=@(navManager.GetUriWithQueryParameter("page",i))>@current</NavLink>
+                     </li>
+                }
+            }
+            <li class="page-item @LastDisabled">
+                <NavLink class="page-link" href=@(navManager.GetUriWithQueryParameter("page",CurrentPage+1)) aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </NavLink>
+            </li>
+        </ul>
+    </nav>
+}
+
+@code
+{
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public int PageCount { get; set; }
+
+    private string PrevDisabled = "";
+
+    private string LastDisabled = "";
+
+    protected override void OnParametersSet()
+    {
+        if (CurrentPage == 1) { PrevDisabled = "disabled"; } else { PrevDisabled = ""; }
+        if (CurrentPage == PageCount) { LastDisabled = "disabled"; } else { LastDisabled = ""; }
+        StateHasChanged();
+    }
+
+    
+}
